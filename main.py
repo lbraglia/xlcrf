@@ -1,4 +1,3 @@
-from pprint import pprint
 import numpy as np
 import pandas as pd
 import xlsxwriter
@@ -17,7 +16,9 @@ protection_pw = 'asd'
 #     return excel_col
 
 def import_validate(x):
-    if (x == 'intero'):
+    if (pd.isna(x)):
+        return x
+    elif (x == 'intero'):
         return "integer"
     elif (x == 'decimale'):
         return "decimal"
@@ -27,84 +28,77 @@ def import_validate(x):
         return "date"
     elif (x == 'ora'):
         return "time"
-    else:
-        return "any" # default
 
 def import_criteria(x):
-    if (x == 'tra'):
+    if (pd.isna(x)):
+        return x
+    elif (x == 'tra'):
         return 'between'
     elif (x == 'non compreso tra'):
         return 'not between'
     else:
         return x
 
-def import_sino_deftrue(x):
-    if (x != ''):
-        return x == 'Sì'
+def import_sino(x):
+    if (pd.isna(x)):
+        return x
     else:
-        return True # default
+        return x == 'Sì'
 
 def import_id_elenco(x):
     if (pd.isna(x)):
-        return None
+        return x
     else:
         return x
 
+        
+    
 class Column:
-    def __init__(self, prog, struct):
+    def __init__(self, prog, struct, modalita, debug = True):
+        # posizione, nome variabile e descrizione
         self.index         = prog
         self.variable      = struct['variabile']
         self.description   = struct['descrizione_e_unita_misura']
-        self.validate      = import_validate(struct['tipo'])
-        self.id_elenco     = import_id_elenco(struct['id_elenco'])
-        self.criteria      = import_criteria(struct['criterio'])
-        self.value         = struct['valore']
-        self.minimum       = struct['minimo']
-        self.maximum       = struct['massimo']
-        self.ignore_blank  = import_sino_deftrue(struct['ignora_celle_vuote'])
-        self.drop_down     = import_sino_deftrue(struct['elenco_nella_cella'])
-        self.show_input    = import_sino_deftrue(struct['input_mostra'])
-        self.input_title   = struct['input_titolo']
-        self.input_message = struct['input_messaggio']
-        self.show_error    = import_sino_deftrue(struct['errore_mostra'])
-        self.error_type    = struct['errore_tipo']
-        self.error_title   = struct['errore_titolo']
-        self.error_message = struct['errore_messaggio']
+        if (debug):
+            print("importing " + self.variable)
+        # data validation for excel
+        # gestione delle domande a risposta multipla se specificato
+        # prendile da modalita, se no imposta a np.nan
+        source_modalita = import_id_elenco(struct['id_elenco'])
+        self.validation = {
+            'validate'      : import_validate(struct['tipo']),
+            'source'        : source_modalita,
+            'criteria'      : import_criteria(struct['criterio']),
+            'value'         : struct['valore'],
+            'minimum'       : struct['minimo'],
+            'maximum'       : struct['massimo'],
+            'ignore_blank'  : import_sino(struct['ignora_celle_vuote']),
+            'drop_down'     : import_sino(struct['elenco_nella_cella']),
+            'show_input'    : import_sino(struct['input_mostra']),
+            'input_title'   : struct['input_titolo'],
+            'input_message' : struct['input_messaggio'],
+            'show_error'    : import_sino(struct['errore_mostra']),
+            'error_type'    : struct['errore_tipo'],
+            'error_title'   : struct['errore_titolo'],
+            'error_message' : struct['errore_messaggio']
+        }
 
-    def export(self, ws, modalita):
+    def export(self, ws, debug = True):
         prog_col = self.index
         # title
         ws.write(0, prog_col, self.variable)
+        if (debug):
+            print("exporting " + self.variable)
         # data validation from 1 to fillable_rows
-        valid_dict = {
-            "validate"       : self.validate     ,
-            "criteria"       : self.criteria     ,
-            "value"          : self.value        ,
-            "minimum"        : self.minimum      ,
-            "maximum"        : self.maximum      ,
-            "ignore_blank"   : self.ignore_blank ,
-            "dropdown"       : self.drop_down    ,
-            "show_input"     : self.show_input   ,
-            "input_title"    : self.input_title  ,
-            "input_message"  : self.input_message,
-            "show_error"     : self.show_error   ,
-            "error_type"     : self.error_type   ,
-            "error_title"    : self.error_title  ,
-            "error_message"  : self.error_message
+        validation_dict = {
+            d:v for d,v in self.validation.items() if not pd.isna(v)
         }
-        # Add modalita per le categoriche
-        if (self.id_elenco == None):
-            # print("niente")
-            pass
-        else:
-            # print(modalita[self.id_elenco])
-            valid_dict['source'] = modalita[self.id_elenco]
-
-        ws.data_validation(1, prog_col, n_fillable_rows, prog_col, valid_dict)
+        ws.data_validation(1, prog_col, n_fillable_rows, prog_col,
+                           validation_dict)
 
         
 class Sheet:
-    def __init__(self, xl, sheetname):
+    def __init__(self, xl, sheetname, modalita):
         sheet = xl.parse(sheetname)
         sheet = sheet.reset_index() 
         self.sheetname = sheetname
@@ -112,9 +106,9 @@ class Sheet:
         # ciclando sulle righe del data.frame di input
         self.columns = []
         for index, row in sheet.iterrows():
-            self.columns.append(Column(index, row))
+            self.columns.append(Column(index, row, modalita))
 
-    def export(self, ws, formats, modalita):
+    def export(self, ws, formats):
         # Data
         for c in self.columns:
             c.export(ws, modalita)
@@ -151,13 +145,13 @@ class CRF:
         xl = pd.ExcelFile(f)
 
         # importa le modalità impiegate
-        self.modalita = parse_modalita(df = xl.parse('modalita_output'))
+        modalita = parse_modalita(df = xl.parse('modalita_output'))
         
         # importa gli sheet e dai le modalita come dict
         data_sheets = [s for s in xl.sheet_names if s not in
                        ['modalita_output', 'modalita_struttura']]
         for s in data_sheets:
-            self.sheets[s] = Sheet(xl, s)
+            self.sheets[s] = Sheet(xl, s, modalita)
         
 
     def create(self, f):
@@ -173,7 +167,7 @@ class CRF:
         # raw data
         for k, s in self.sheets.items():
             ws = wb.add_worksheet(k)
-            s.export(ws, formats, self.modalita)
+            s.export(ws, formats)
         wb.close()
 
 
