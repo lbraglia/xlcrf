@@ -1,0 +1,10 @@
+README.md
+pyproject.toml
+setup.cfg
+src/xlcrf/CRF.py
+src/xlcrf/__init__.py
+src/xlcrf/script.py
+src/xlcrf.egg-info/PKG-INFO
+src/xlcrf.egg-info/SOURCES.txt
+src/xlcrf.egg-info/dependency_links.txt
+src/xlcrf.egg-info/top_level.txt

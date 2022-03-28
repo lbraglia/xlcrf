@@ -1,0 +1,7 @@
+README.md
+pyproject.toml
+setup.cfg
+xlcrf/xlcrf.egg-info/PKG-INFO
+xlcrf/xlcrf.egg-info/SOURCES.txt
+xlcrf/xlcrf.egg-info/dependency_links.txt
+xlcrf/xlcrf.egg-info/top_level.txt
