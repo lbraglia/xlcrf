@@ -7,6 +7,8 @@ build:
 test:
 	inv
 
+streamlit:
+	streamlit run streamlit.py
 
 interactive:
 	inv interactive

@@ -1,3 +1,4 @@
 build/
 dist/
 xlcrf/xlcrf.egg-info/
+__pycache__
