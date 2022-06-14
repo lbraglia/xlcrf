@@ -4,11 +4,11 @@ install:
 build:
 	python3 -m build
 
-test:
-	inv
+# test:
+# 	xlcrf
 
 streamlit:
 	streamlit run streamlit.py
 
-interactive:
-	inv interactive
+# interactive:
+# 	inv interactive
