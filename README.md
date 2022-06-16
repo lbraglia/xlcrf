@@ -1,7 +1,8 @@
 # xlcrf
 
-A tool to create xlsx files for data collection with input validation,
-given a standard description of the dataset (xlsx file as well).
+A tool (library + command line script) to create xlsx files for data
+collection with input validation, given a standard description of the
+dataset (xlsx file as well).
 
 
 ## usage
