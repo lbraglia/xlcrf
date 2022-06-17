@@ -4,8 +4,8 @@ install:
 build:
 	python3 -m build
 
-# test:
-# 	xlcrf
+upload:
+	python3 -m twine upload dist/* --verbose
 
 streamlit:
 	streamlit run streamlit.py
