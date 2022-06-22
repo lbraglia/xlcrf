@@ -14,7 +14,6 @@ upload: build
 tests: install-dev-version
 	cd /tmp && \
 	rm -rf *.xlsx  && \
-	xlcrf ~/src/pypkg/xlcrf/examples/example1.xlsx  && \
-	xlcrf ~/src/pypkg/xlcrf/examples/example2.xlsx  && \
-	xlcrf ~/src/pypkg/xlcrf/examples/minimal.xlsx  && \
+	xlcrf ~/src/pypkg/xlcrf/examples/esempio1.xlsx  && \
+	xlcrf ~/src/pypkg/xlcrf/examples/esempio2.xlsx  && \
 	libreoffice *.xlsx
