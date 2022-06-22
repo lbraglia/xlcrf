@@ -13,9 +13,9 @@ Questo produrrà `file_struttura_CRF.xlsx`.
 
 ## File di struttura
 
-Si tratta di file `.xlsx` che specifica la struttura del dataset
+Si tratta di un file `.xlsx` che specifica la struttura del dataset
 desiderato. [Qui](https://github.com/lbraglia/xlcrf/tree/main/examples)
-vi sono alcuni esempi, mentre [questo]() è un template bianco
+vi sono alcuni esempi, mentre [questo](https://github.com/lbraglia/xlcrf/raw/main/examples/blank_template.xlsx) è un template bianco
 utilizzabile.
 
 In generale un file struttura si compone di:
