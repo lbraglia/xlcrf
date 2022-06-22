@@ -21,6 +21,8 @@ def import_validate(x):
         return "date"
     elif (x == 'ora'):
         return "time"
+    elif (x == 'testo'):
+        return "any"
 
 def import_criteria(x):
     if (pd.isna(x)):
@@ -50,7 +52,7 @@ class Column:
         # posizione, nome variabile e descrizione
         self.index         = prog
         self.variable      = struct['variabile']
-        self.description   = struct['descrizione_e_unita_misura']
+        # self.description   = struct['descrizione_e_unita_misura']
         # debug info
         if (debug):
             print("importing " + self.variable)
@@ -65,13 +67,23 @@ class Column:
             'value'         : struct['valore'],
             'minimum'       : struct['minimo'],
             'maximum'       : struct['massimo'],
-            'ignore_blank'  : import_sino(struct['ignora_celle_vuote']),
-            'dropdown'      : import_sino(struct['elenco_nella_cella']),
-            'show_input'    : import_sino(struct['input_mostra']),
+            # ---------------------------------------
+            'ignore_blank'  : True,
+            'dropdown'      : True,
+            'show_input'    : True,
+            # 'ignore_blank'  : import_sino(struct['ignora_celle_vuote']),
+            # 'dropdown'      : import_sino(struct['elenco_nella_cella']),
+            # 'show_input'    : import_sino(struct['input_mostra']),
+            # ---------------------------------------
             'input_title'   : struct['input_titolo'],
             'input_message' : struct['input_messaggio'],
-            'show_error'    : import_sino(struct['errore_mostra']),
-            'error_type'    : struct['errore_tipo'],
+            # ---------------------------------------
+            'show_error'    : True,
+            # 'show_error'    : import_sino(struct['errore_mostra']),
+            # ---------------------------------------
+            'error_type'    : "stop",
+            # 'error_type'    : struct['errore_tipo'],
+            # ---------------------------------------
             'error_title'   : struct['errore_titolo'],
             'error_message' : struct['errore_messaggio']
         }
@@ -125,7 +137,7 @@ class Sheet:
 
 
 def parse_modalita(df):
-    grouped = df.groupby('list_name')
+    grouped = df.groupby('id_elenco')
     modalita = {}
     for name, group in grouped:
         modalita[name] = list(group['modalita'])

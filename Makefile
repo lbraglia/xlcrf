@@ -10,3 +10,11 @@ build:
 
 upload:
 	python3 -m twine upload dist/* --verbose
+
+tests: install-dev-version
+	cd /tmp && \
+	rm -rf *.xlsx  && \
+	xlcrf ~/src/pypkg/xlcrf/examples/example1.xlsx  && \
+	xlcrf ~/src/pypkg/xlcrf/examples/example2.xlsx  && \
+	xlcrf ~/src/pypkg/xlcrf/examples/minimal.xlsx  && \
+	libreoffice *.xlsx
