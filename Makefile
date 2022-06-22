@@ -4,11 +4,11 @@ install-from-pipy:
 install-dev-version:
 	pip3 install .
 
-build:
+build: 
 	rm -rf dist/*
 	python3 -m build
 
-upload:
+upload: build
 	python3 -m twine upload dist/* --verbose
 
 tests: install-dev-version
