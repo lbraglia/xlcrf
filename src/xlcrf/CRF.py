@@ -75,7 +75,7 @@ class Column:
             # 'dropdown'      : import_sino(struct['elenco_nella_cella']),
             # 'show_input'    : import_sino(struct['input_mostra']),
             # ---------------------------------------
-            'input_title'   : struct['input_titolo'],
+            'input_title'   : (struct['input_titolo'])[:32],
             'input_message' : struct['input_messaggio'],
             # ---------------------------------------
             'show_error'    : True,
@@ -84,7 +84,8 @@ class Column:
             'error_type'    : "stop",
             # 'error_type'    : struct['errore_tipo'],
             # ---------------------------------------
-            'error_title'   : struct['errore_titolo'],
+            'error_title'   : "Inserimento erroneo",
+            # 'error_title'   : struct['errore_titolo'],
             'error_message' : struct['errore_messaggio']
         }
 
@@ -109,7 +110,7 @@ class Column:
         
 class Sheet:
     def __init__(self, xl, sheetname, modalita, debug = debug):
-        sheet = xl.parse(sheetname)
+        sheet = xl.parse(sheetname).dropna(how = 'all')
         sheet = sheet.reset_index()
         if (debug):
             print(sheet)
