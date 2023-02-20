@@ -34,21 +34,25 @@ def import_criteria(x):
     else:
         return x
 
-def import_sino(x):
-    if (pd.isna(x)):
-        return x
-    else:
-        return x == 'Sì'
+# def import_sino(x):
+#     if (pd.isna(x)):
+#         return x
+#     else:
+#         return x == 'Sì'
 
-def import_id_elenco(x, modalita):
+def select_modalita(x, modalita, variabile, sheetname):
+    # ottieni modalità per elenchi: se specificato
+    # prendile da modalita (se disponibile) se no imposta a np.nan
     if (pd.isna(x)):
         return x
     else:
-        return modalita[x]
-        
+        if (x in modalita):
+            return modalita[x]
+        else:
+            raise LookupError("l'id_elenco '" +x + "' non è specificato nella scheda 'modalita_output' ma viene richiesto per la variabile '" + variabile +"' (foglio '"+ sheetname + "'). Rettificare.")
     
 class Column:
-    def __init__(self, prog, struct, modalita, debug = debug):
+    def __init__(self, prog, struct, modalita, sheetname, debug = debug):
         # posizione, nome variabile e descrizione
         self.index         = prog
         self.variable      = struct['variabile']
@@ -56,13 +60,12 @@ class Column:
         # debug info
         if (debug):
             print("importing " + self.variable)
-        # data validation for excel
-        # gestione delle domande a risposta multipla se specificato
-        # prendile da modalita, se no imposta a np.nan
-        source_modalita = import_id_elenco(struct['id_elenco'], modalita)
         self.validation = {
             'validate'      : import_validate(struct['tipo']),
-            'source'        : source_modalita,
+            'source'        : select_modalita(struct['id_elenco'],
+                                              modalita,
+                                              struct['variabile'],
+                                              sheetname),
             'criteria'      : import_criteria(struct['criterio']),
             'value'         : struct['valore'],
             'minimum'       : struct['minimo'],
@@ -119,7 +122,7 @@ class Sheet:
         # ciclando sulle righe del data.frame di input
         self.columns = []
         for index, row in sheet.iterrows():
-            self.columns.append(Column(index, row, modalita))
+            self.columns.append(Column(index, row, modalita, sheetname))
 
     def export(self, ws, formats, debug = debug):
         # Data
